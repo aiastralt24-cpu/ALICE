@@ -22,7 +22,7 @@ export function AlicePageIntro({ eyebrow, title, description, actions = [] }: Pr
         <p>{description}</p>
       </div>
       {actions.length ? (
-        <div className="alice-actions">
+        <div className="alice-page-actions">
           {actions.map((action) =>
             action.href ? (
               <Link className={`button ${action.style === "secondary" ? "button-secondary" : "button-primary"}`} href={action.href} key={action.label}>

@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model BrandProfile {
+  id             String          @id @default(cuid())
+  slug           String          @unique
+  name           String
+  tone           String
+  priorityCities String
+  ingestionRuns  IngestionRun[]
+  productRecords ProductRecord[]
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+}
+
+model IngestionRun {
+  id            String       @id
+  fileName      String
+  status        String
+  productsFound Int
+  confidence    String
+  reviewer      String
+  uploadedAt    String
+  brandId       String
+  brand         BrandProfile @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model ProductRecord {
+  id         String       @id
+  name       String
+  category   String
+  audience   String
+  usp        String
+  spec       String
+  status     String
+  brandId    String
+  brand      BrandProfile @relation(fields: [brandId], references: [id], onDelete: Cascade)
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
+}
+
+model BlogDraft {
+  id        String   @id
+  title     String
+  city      String
+  keyword   String
+  mode      String
+  score     Int
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model KeywordTarget {
+  id        String   @id @default(cuid())
+  keyword   String
+  city      String
+  intent    String
+  rank      String
+  trend     String
+  gap       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

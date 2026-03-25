@@ -19,6 +19,7 @@ function isActive(pathname: string, href: string) {
 
 export function AliceShell({ children }: Props) {
   const pathname = usePathname();
+  const currentItem = aliceNav.find((item) => isActive(pathname, item.href));
 
   return (
     <div className="alice-layout">
@@ -54,13 +55,12 @@ export function AliceShell({ children }: Props) {
       <div className="alice-layout-main">
         <header className="alice-topbar">
           <div>
-            <span className="alice-topbar-label">Build workspace</span>
-            <h1>ALICE product skeleton</h1>
+            <span className="alice-topbar-label">Astral Local Intelligence and Content Engine</span>
+            <h1>{currentItem?.label ?? "Overview"}</h1>
           </div>
           <div className="alice-topbar-meta">
-            <span>Astral Pipes launch brand</span>
+            <span>{currentItem?.caption ?? "Program dashboard"}</span>
             <span>Human review first</span>
-            <span>Local SEO workflow</span>
           </div>
         </header>
 

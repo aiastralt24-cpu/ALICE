@@ -1,9 +1,17 @@
 import Link from "next/link";
 
+import { createIngestionRunAction, updateIngestionRunStatusAction } from "@/app/actions";
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { extractionChecks, ingestionRuns, pipelineMetrics } from "@/lib/alice-data";
+import { getBrandProfiles, getIngestionRuns, getPipelineMetrics, getStaticAliceGuidance } from "@/lib/alice-store";
 
-export default function IngestionPage() {
+export default async function IngestionPage() {
+  const [brands, ingestionRuns, pipelineMetrics] = await Promise.all([
+    getBrandProfiles(),
+    getIngestionRuns(),
+    getPipelineMetrics(),
+  ]);
+  const { extractionChecks } = getStaticAliceGuidance();
+
   return (
     <main className="alice-screen-shell">
       <AlicePageIntro
@@ -30,14 +38,55 @@ export default function IngestionPage() {
         <article className="alice-surface">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Upload lane</span>
-              <h2>Drop brochures here</h2>
+              <span className="alice-card-label">Create run</span>
+              <h2>Log a brochure ingestion</h2>
             </div>
           </div>
-          <div className="alice-dropzone">
-            <strong>PDF, DOCX, or scanned images</strong>
-            <p>Expected flow: upload, OCR parse, field extraction, human approval, PKB publish.</p>
-          </div>
+          <form action={createIngestionRunAction} className="alice-form-grid">
+            <label className="alice-field">
+              <span>File name</span>
+              <input className="alice-input" name="fileName" placeholder="FlowGuard_CPVC_Product_Brochure.pdf" required />
+            </label>
+            <label className="alice-field">
+              <span>Brand</span>
+              <select className="alice-input" defaultValue={brands[0]?.name ?? ""} name="brand" required>
+                {brands.map((brand) => (
+                  <option key={brand.name} value={brand.name}>
+                    {brand.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <label className="alice-field">
+              <span>Status</span>
+              <select className="alice-input" defaultValue="Needs review" name="status">
+                <option>Needs review</option>
+                <option>Parsing</option>
+                <option>Approved</option>
+              </select>
+            </label>
+            <label className="alice-field">
+              <span>Reviewer</span>
+              <input className="alice-input" defaultValue="Pending" name="reviewer" />
+            </label>
+            <label className="alice-field">
+              <span>Confidence</span>
+              <input className="alice-input" defaultValue="80%" name="confidence" />
+            </label>
+            <label className="alice-field">
+              <span>Products found</span>
+              <input className="alice-input" defaultValue="1" min="0" name="productsFound" type="number" />
+            </label>
+            <label className="alice-field alice-field-full">
+              <span>Uploaded at</span>
+              <input className="alice-input" defaultValue="Today" name="uploadedAt" />
+            </label>
+            <div className="alice-form-actions alice-field-full">
+              <button className="button button-primary" type="submit">
+                Save ingestion run
+              </button>
+            </div>
+          </form>
         </article>
 
         <article className="alice-surface">
@@ -49,7 +98,7 @@ export default function IngestionPage() {
           </div>
           <div className="alice-stack">
             {ingestionRuns.map((run) => (
-              <div className="alice-row-card" key={run.id}>
+              <div className="alice-row-card alice-row-card-actions" key={run.id}>
                 <div>
                   <strong>{run.fileName}</strong>
                   <p>
@@ -64,6 +113,17 @@ export default function IngestionPage() {
                   <span>Review</span>
                   <strong>{run.reviewer}</strong>
                 </div>
+                <form action={updateIngestionRunStatusAction} className="alice-inline-form">
+                  <input name="id" type="hidden" value={run.id} />
+                  <select className="alice-input alice-input-compact" defaultValue={run.status} name="status">
+                    <option>Parsing</option>
+                    <option>Needs review</option>
+                    <option>Approved</option>
+                  </select>
+                  <button className="button button-secondary" type="submit">
+                    Update
+                  </button>
+                </form>
               </div>
             ))}
           </div>

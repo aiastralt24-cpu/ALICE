@@ -1,137 +1,116 @@
 import Link from "next/link";
 
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import {
-  aliceBrands,
-  generationQueue,
-  ingestionRuns,
-  keywordGroups,
-  pipelineMetrics,
-  productRecords,
-  reviewAlerts,
-} from "@/lib/alice-data";
+import { reviewAlerts } from "@/lib/alice-data";
+import { getBrandProfiles, getGenerationQueue, getIngestionRuns, getKeywordGroups, getPipelineMetrics, getProductRecords } from "@/lib/alice-store";
 
-const modules = [
-  {
-    href: "/ingestion",
-    label: "Brochure Ingestion",
-    detail: "Upload brochures, inspect extraction runs, and approve structured product records.",
-  },
-  {
-    href: "/pkb",
-    label: "Product Knowledge Base",
-    detail: "Browse products, specs, certifications, and content-ready product context.",
-  },
-  {
-    href: "/queue",
-    label: "Blog Queue",
-    detail: "Review generated drafts, quality signals, and publish readiness by city and keyword.",
-  },
-  {
-    href: "/keywords",
-    label: "Keyword Tracker",
-    detail: "See city opportunities, ranking movement, and content gaps worth prioritizing.",
-  },
-];
+export default async function AliceHomePage() {
+  const [aliceBrands, generationQueue, ingestionRuns, keywordGroups, pipelineMetrics, productRecords] = await Promise.all([
+    getBrandProfiles(),
+    getGenerationQueue(),
+    getIngestionRuns(),
+    getKeywordGroups(),
+    getPipelineMetrics(),
+    getProductRecords(),
+  ]);
 
-export default function AliceHomePage() {
   const nextDraft = generationQueue[0];
+  const nextIngestion = ingestionRuns[0];
 
   return (
     <main className="alice-app-shell">
       <AlicePageIntro
-        eyebrow="Command Center"
-        title="Turn brochure data into local search momentum."
-        description="This first product skeleton connects ingestion, structured product knowledge, blog drafting, and keyword opportunities into one buildable operating surface for Astral's local SEO engine."
+        eyebrow="Today"
+        title="Work the queue, not the system."
+        description="ALICE should tell the team what needs attention now, what is ready next, and what can wait."
         actions={[
-          { href: "/ingestion", label: "Start ingestion" },
-          { href: "/queue", label: "Open review queue", style: "secondary" },
+          { href: `/queue/${nextDraft.id}`, label: "Review next draft" },
+          { href: "/queue", label: "Open full queue", style: "secondary" },
         ]}
       />
 
-      <section className="alice-command-hero">
-        <div className="alice-command-copy">
-          <span className="alice-card-label">Launch focus</span>
-          <h2>Astral Pipes V1</h2>
-          <p>
-            The current build is centered on one launch brand, one trusted product data layer, and one reviewable
-            content flow before we scale into GBP automation and multilingual output.
+      <section className="alice-focus-band">
+        <article className="alice-focus-panel">
+          <div className="alice-focus-head">
+            <div>
+              <span className="alice-card-label">Primary task</span>
+              <h2>{nextDraft.title}</h2>
+            </div>
+            <span className="alice-status-pill alice-status-pill-review">{nextDraft.status}</span>
+          </div>
+          <p className="alice-focus-copy">
+            {nextDraft.city} market review for <strong>{nextDraft.keyword}</strong>. This should be the loudest task in the product until someone resolves it.
           </p>
-
-          <div className="alice-inline-note">
-            <strong>Recommended sequence</strong>
-            <p>Ingest brochures, approve PKB records, generate drafts, review them, then publish only the strongest city pages.</p>
+          <div className="alice-focus-meta">
+            <span>Mode {nextDraft.mode}</span>
+            <span>Score {nextDraft.score}</span>
+            <span>Astral Pipes</span>
           </div>
-        </div>
-
-        <aside className="alice-command-panel">
-          <div className="alice-command-highlight">
-            <span>Today&apos;s focus</span>
-            <strong>{nextDraft.title}</strong>
-            <p>
-              {nextDraft.city} · {nextDraft.keyword} · score {nextDraft.score}
-            </p>
+          <div className="alice-page-actions">
+            <Link className="button button-primary" href={`/queue/${nextDraft.id}`}>
+              Open draft
+            </Link>
+            <Link className="button button-secondary" href="/pkb">
+              Check PKB
+            </Link>
           </div>
-          <div className="alice-mini-stat-grid">
-            {pipelineMetrics.map((metric) => (
-              <div className="alice-mini-stat" key={metric.label}>
-                <span>{metric.label}</span>
-                <strong>{metric.value}</strong>
-                <p>{metric.note}</p>
-              </div>
-            ))}
+        </article>
+
+        <aside className="alice-focus-rail">
+          <div className="alice-rail-section">
+            <span className="alice-card-label">System pulse</span>
+            <div className="alice-signal-list">
+              {pipelineMetrics.map((metric) => (
+                <div className="alice-signal-row" key={metric.label}>
+                  <span>{metric.label}</span>
+                  <strong>{metric.value}</strong>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="alice-rail-section">
+            <span className="alice-card-label">Next source doc</span>
+            <strong>{nextIngestion.fileName}</strong>
+            <p>{nextIngestion.brand} · {nextIngestion.status}</p>
+            <Link className="alice-inline-link" href="/ingestion">
+              Open ingestion
+            </Link>
           </div>
         </aside>
       </section>
 
-      <section className="alice-module-grid">
-        {modules.map((module) => (
-          <Link className="alice-module-card" href={module.href} key={module.href}>
-            <span className="alice-card-label">Module</span>
-            <h2>{module.label}</h2>
-            <p>{module.detail}</p>
-          </Link>
-        ))}
-      </section>
-
-      <section className="alice-dashboard-grid">
-        <article className="alice-surface">
+      <section className="alice-work-grid">
+        <article className="alice-surface alice-surface-strong">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Ingestion</span>
-              <h2>Recent brochure runs</h2>
+              <span className="alice-card-label">Review queue</span>
+              <h2>What should happen next</h2>
             </div>
-            <Link href="/ingestion">Manage</Link>
+            <Link href="/queue">Open all</Link>
           </div>
-          <div className="alice-stack">
-            {ingestionRuns.map((run) => (
-              <div className="alice-row-card" key={run.id}>
+          <div className="alice-stack alice-stack-tight">
+            {generationQueue.slice(0, 4).map((draft) => (
+              <Link className="alice-work-row" href={`/queue/${draft.id}`} key={draft.id}>
                 <div>
-                  <strong>{run.fileName}</strong>
+                  <strong>{draft.title}</strong>
                   <p>
-                    {run.brand} · {run.status}
+                    {draft.city} · {draft.keyword}
                   </p>
                 </div>
-                <div>
-                  <span>Products</span>
-                  <strong>{run.productsFound}</strong>
-                </div>
-                <div>
-                  <span>Confidence</span>
-                  <strong>{run.confidence}</strong>
-                </div>
-              </div>
+                <span className="alice-work-meta">{draft.mode}</span>
+                <span className="alice-work-meta">Score {draft.score}</span>
+                <span className="alice-status-pill alice-status-pill-neutral">{draft.status}</span>
+              </Link>
             ))}
           </div>
         </article>
 
-        <article className="alice-surface">
+        <article className="alice-surface alice-surface-muted">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Review</span>
-              <h2>Queue alerts</h2>
+              <span className="alice-card-label">Current risks</span>
+              <h2>What could block publish</h2>
             </div>
-            <Link href="/queue">Open queue</Link>
           </div>
           <div className="alice-stack">
             {reviewAlerts.map((alert) => (
@@ -144,71 +123,55 @@ export default function AliceHomePage() {
         </article>
       </section>
 
-      <section className="alice-dashboard-grid alice-dashboard-grid-bottom">
+      <section className="alice-support-grid">
         <article className="alice-surface">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">PKB</span>
-              <h2>Priority product records</h2>
+              <span className="alice-card-label">Readiness</span>
+              <h2>Core workflows</h2>
             </div>
-            <Link href="/pkb">Browse all</Link>
           </div>
-          <div className="alice-table">
-            {productRecords.slice(0, 4).map((product) => (
-              <div className="alice-table-row" key={product.id}>
-                <div>
-                  <strong>{product.name}</strong>
-                  <p>
-                    {product.brand} · {product.category}
-                  </p>
-                </div>
-                <div>
-                  <span>Audience</span>
-                  <strong>{product.audience}</strong>
-                </div>
-                <div>
-                  <span>Status</span>
-                  <strong>{product.status}</strong>
-                </div>
+          <div className="alice-readiness-list">
+            <Link className="alice-readiness-row" href="/ingestion">
+              <div>
+                <strong>Ingestion</strong>
+                <p>Source documents and extraction status</p>
               </div>
-            ))}
+              <span>{ingestionRuns.length} runs</span>
+            </Link>
+            <Link className="alice-readiness-row" href="/pkb">
+              <div>
+                <strong>PKB</strong>
+                <p>Approved product truth for generation</p>
+              </div>
+              <span>{productRecords.length} records</span>
+            </Link>
+            <Link className="alice-readiness-row" href="/keywords">
+              <div>
+                <strong>Keywords</strong>
+                <p>City opportunity map and next moves</p>
+              </div>
+              <span>{keywordGroups.length} targets</span>
+            </Link>
           </div>
         </article>
 
         <article className="alice-surface">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Keywords</span>
-              <h2>Priority city clusters</h2>
+              <span className="alice-card-label">Brand scope</span>
+              <h2>Launch markets</h2>
             </div>
-            <Link href="/keywords">Open tracker</Link>
           </div>
-          <div className="alice-stack">
-            {keywordGroups.slice(0, 4).map((group) => (
-              <div className="alice-chip-card" key={`${group.keyword}-${group.city}`}>
-                <div>
-                  <strong>{group.keyword}</strong>
-                  <p>{group.city}</p>
-                </div>
-                <div className="alice-chip-metrics">
-                  <span>Rank {group.rank}</span>
-                  <span>{group.trend}</span>
-                  <span>{group.gap}</span>
-                </div>
+          <div className="alice-brand-columns">
+            {aliceBrands.map((brand) => (
+              <div className="alice-brand-line" key={brand.name}>
+                <strong>{brand.name}</strong>
+                <p>{brand.priorityCities.join(" · ")}</p>
               </div>
             ))}
           </div>
         </article>
-      </section>
-
-      <section className="alice-brand-strip">
-        {aliceBrands.map((brand) => (
-          <div className="alice-brand-card" key={brand.name}>
-            <span>{brand.name}</span>
-            <strong>{brand.tone}</strong>
-            <p>{brand.priorityCities.join(" · ")}</p>
-          </div>
-        ))}
       </section>
     </main>
   );

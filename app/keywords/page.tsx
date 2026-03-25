@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { keywordGroups, keywordPriorities } from "@/lib/alice-data";
+import { getKeywordGroups, getStaticAliceGuidance } from "@/lib/alice-store";
 
-export default function KeywordsPage() {
+export default async function KeywordsPage() {
+  const keywordGroups = await getKeywordGroups();
+  const { keywordPriorities } = getStaticAliceGuidance();
+
   return (
     <main className="alice-screen-shell">
       <AlicePageIntro
