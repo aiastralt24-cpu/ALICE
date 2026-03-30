@@ -5,6 +5,8 @@ import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
 
+const useStaticDemo = process.env.VERCEL === "1" || process.env.ALICE_STATIC_DEMO === "1";
+
 function getString(formData: FormData, key: string) {
   const value = formData.get(key);
   return typeof value === "string" ? value.trim() : "";
@@ -29,6 +31,10 @@ async function getBrandIdByName(name: string) {
 }
 
 export async function createIngestionRunAction(formData: FormData) {
+  if (useStaticDemo) {
+    redirect("/ingestion?notice=demo-mode");
+  }
+
   const fileName = getString(formData, "fileName");
   const brandName = getString(formData, "brand");
   const status = getString(formData, "status") || "Needs review";
@@ -62,6 +68,10 @@ export async function createIngestionRunAction(formData: FormData) {
 }
 
 export async function updateIngestionRunStatusAction(formData: FormData) {
+  if (useStaticDemo) {
+    redirect("/ingestion?notice=demo-mode");
+  }
+
   const id = getString(formData, "id");
   const status = getString(formData, "status");
 
@@ -80,6 +90,10 @@ export async function updateIngestionRunStatusAction(formData: FormData) {
 }
 
 export async function createProductRecordAction(formData: FormData) {
+  if (useStaticDemo) {
+    redirect("/pkb?notice=demo-mode");
+  }
+
   const name = getString(formData, "name");
   const brandName = getString(formData, "brand");
   const category = getString(formData, "category");
@@ -113,6 +127,10 @@ export async function createProductRecordAction(formData: FormData) {
 }
 
 export async function updateProductRecordStatusAction(formData: FormData) {
+  if (useStaticDemo) {
+    redirect("/pkb?notice=demo-mode");
+  }
+
   const id = getString(formData, "id");
   const status = getString(formData, "status");
 
@@ -131,6 +149,11 @@ export async function updateProductRecordStatusAction(formData: FormData) {
 }
 
 export async function updateBlogDraftStatusAction(formData: FormData) {
+  if (useStaticDemo) {
+    const id = getString(formData, "id");
+    redirect(id ? `/queue/${id}?notice=demo-mode` : "/queue");
+  }
+
   const id = getString(formData, "id");
   const status = getString(formData, "status");
 

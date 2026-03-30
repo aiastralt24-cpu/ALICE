@@ -15,6 +15,10 @@ type Props = {
 };
 
 function getNoticeMessage(notice?: string) {
+  if (notice === "demo-mode") {
+    return "Demo mode on Vercel is read-only. The preview uses sample data and does not save changes.";
+  }
+
   if (notice === "status-saved") {
     return "Status saved. The queue now reflects the next review step.";
   }

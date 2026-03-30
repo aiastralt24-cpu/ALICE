@@ -14,7 +14,13 @@ import {
   generationModes,
 } from "@/lib/alice-data";
 
+const useStaticData = process.env.VERCEL === "1" || process.env.ALICE_STATIC_DEMO === "1";
+
 export async function getBrandProfiles() {
+  if (useStaticData) {
+    return aliceBrands;
+  }
+
   try {
     const brands = await db.brandProfile.findMany({
       orderBy: { name: "asc" },
@@ -35,6 +41,10 @@ export async function getBrandProfiles() {
 }
 
 export async function getIngestionRuns() {
+  if (useStaticData) {
+    return ingestionRuns;
+  }
+
   try {
     const runs = await db.ingestionRun.findMany({
       include: { brand: true },
@@ -61,6 +71,10 @@ export async function getIngestionRuns() {
 }
 
 export async function getProductRecords() {
+  if (useStaticData) {
+    return productRecords;
+  }
+
   try {
     const records = await db.productRecord.findMany({
       include: { brand: true },
@@ -87,6 +101,10 @@ export async function getProductRecords() {
 }
 
 export async function getGenerationQueue() {
+  if (useStaticData) {
+    return generationQueue;
+  }
+
   try {
     const drafts = await db.blogDraft.findMany({
       orderBy: { createdAt: "desc" },
@@ -111,6 +129,10 @@ export async function getGenerationQueue() {
 }
 
 export async function getBlogDraftById(id: string) {
+  if (useStaticData) {
+    return generationQueue.find((item) => item.id === id) ?? null;
+  }
+
   try {
     const draft = await db.blogDraft.findUnique({
       where: { id },
@@ -135,6 +157,10 @@ export async function getBlogDraftById(id: string) {
 }
 
 export async function getKeywordGroups() {
+  if (useStaticData) {
+    return keywordGroups;
+  }
+
   try {
     const keywords = await db.keywordTarget.findMany({
       orderBy: [{ city: "asc" }, { keyword: "asc" }],
@@ -158,6 +184,10 @@ export async function getKeywordGroups() {
 }
 
 export async function getPipelineMetrics() {
+  if (useStaticData) {
+    return pipelineMetrics;
+  }
+
   try {
     const [approvedProducts, draftCount, keywordCount] = await Promise.all([
       db.productRecord.count({ where: { status: "Approved" } }),

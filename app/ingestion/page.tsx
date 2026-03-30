@@ -11,6 +11,10 @@ type Props = {
 };
 
 function getNoticeMessage(notice?: string) {
+  if (notice === "demo-mode") {
+    return "Demo mode on Vercel is read-only. The preview uses sample data and does not save changes.";
+  }
+
   if (notice === "upload-saved") {
     return "Upload saved. Review the latest run and move approved records into products.";
   }
