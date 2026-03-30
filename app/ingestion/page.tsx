@@ -4,25 +4,46 @@ import { createIngestionRunAction, updateIngestionRunStatusAction } from "@/app/
 import { AlicePageIntro } from "@/components/alice-page-intro";
 import { getBrandProfiles, getIngestionRuns, getPipelineMetrics, getStaticAliceGuidance } from "@/lib/alice-store";
 
-export default async function IngestionPage() {
+type Props = {
+  searchParams?: Promise<{
+    notice?: string;
+  }>;
+};
+
+function getNoticeMessage(notice?: string) {
+  if (notice === "upload-saved") {
+    return "Upload saved. Review the latest run and move approved records into products.";
+  }
+
+  if (notice === "run-updated") {
+    return "Run updated. The document queue now reflects the latest review state.";
+  }
+
+  return null;
+}
+
+export default async function IngestionPage({ searchParams }: Props) {
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const [brands, ingestionRuns, pipelineMetrics] = await Promise.all([
     getBrandProfiles(),
     getIngestionRuns(),
     getPipelineMetrics(),
   ]);
   const { extractionChecks } = getStaticAliceGuidance();
+  const notice = getNoticeMessage(resolvedSearchParams?.notice);
 
   return (
     <main className="alice-screen-shell">
       <AlicePageIntro
         eyebrow="Brochure Ingestion"
         title="Capture product knowledge from source documents."
-        description="Start with Astral Pipes brochures, review OCR confidence, and approve product extraction before generation."
         actions={[
-          { href: "/", label: "Dashboard", style: "secondary" },
+          { href: "/", label: "Overview", style: "secondary" },
           { label: "New upload" },
         ]}
       />
+
+      {notice ? <div className="alice-notice-banner">{notice}</div> : null}
 
       <section className="alice-module-grid alice-module-grid-compact">
         {pipelineMetrics.slice(0, 3).map((metric) => (
@@ -34,12 +55,12 @@ export default async function IngestionPage() {
         ))}
       </section>
 
-      <section className="alice-screen-grid">
-        <article className="alice-surface">
+      <section className="alice-detail-layout">
+        <article className="alice-surface alice-surface-strong">
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Create run</span>
-              <h2>Log a brochure ingestion</h2>
+              <h2>New upload</h2>
             </div>
           </div>
           <form action={createIngestionRunAction} className="alice-form-grid">
@@ -89,11 +110,35 @@ export default async function IngestionPage() {
           </form>
         </article>
 
-        <article className="alice-surface">
+        <aside className="alice-review-rail">
+          <div className="alice-review-rail-card">
+            <span className="alice-card-label">Checklist</span>
+            <div className="alice-signal-list">
+              {extractionChecks.slice(0, 3).map((item) => (
+                <div className="alice-signal-copy" key={item}>
+                  {item}
+                </div>
+              ))}
+            </div>
+          </div>
+          <div className="alice-review-rail-card">
+            <span className="alice-card-label">Ready next</span>
+            <strong>{ingestionRuns[0]?.fileName}</strong>
+            <p className="alice-focus-copy alice-focus-copy-compact">
+              {ingestionRuns[0]?.brand} · {ingestionRuns[0]?.status}
+            </p>
+            <Link className="alice-inline-link" href="/pkb">
+              Open products
+            </Link>
+          </div>
+        </aside>
+      </section>
+
+      <section className="alice-surface">
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Runs</span>
-              <h2>Extraction history</h2>
+              <h2>Recent runs</h2>
             </div>
           </div>
           <div className="alice-stack">
@@ -127,23 +172,6 @@ export default async function IngestionPage() {
               </div>
             ))}
           </div>
-        </article>
-      </section>
-
-      <section className="alice-surface">
-        <div className="alice-surface-head">
-          <div>
-            <span className="alice-card-label">Approval checklist</span>
-            <h2>What reviewers should verify</h2>
-          </div>
-        </div>
-        <div className="alice-bullet-grid">
-          {extractionChecks.map((item) => (
-            <div className="alice-bullet-card" key={item}>
-              {item}
-            </div>
-          ))}
-        </div>
       </section>
     </main>
   );

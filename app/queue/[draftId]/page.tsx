@@ -9,10 +9,22 @@ type Props = {
   params: Promise<{
     draftId: string;
   }>;
+  searchParams?: Promise<{
+    notice?: string;
+  }>;
 };
 
-export default async function DraftDetailPage({ params }: Props) {
+function getNoticeMessage(notice?: string) {
+  if (notice === "status-saved") {
+    return "Status saved. The queue now reflects the next review step.";
+  }
+
+  return null;
+}
+
+export default async function DraftDetailPage({ params, searchParams }: Props) {
   const { draftId } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const draft = await getBlogDraftById(draftId);
   const { reviewChecklist, reviewAlerts } = getStaticAliceGuidance();
 
@@ -20,24 +32,29 @@ export default async function DraftDetailPage({ params }: Props) {
     notFound();
   }
 
+  const notice = getNoticeMessage(resolvedSearchParams?.notice);
+
   return (
     <main className="alice-screen-shell">
       <AlicePageIntro
         eyebrow="Draft Detail"
         title={draft.title}
-        description={`Review the ${draft.city} draft, decide its next state, and move on. This screen should feel like one decision, not many.`}
+        variant="detail"
         actions={[
           { href: "/queue", label: "Back to queue", style: "secondary" },
         ]}
       />
 
+      {notice ? <div className="alice-notice-banner">{notice}</div> : null}
+
       <section className="alice-detail-layout">
         <article className="alice-surface alice-surface-strong">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Draft summary</span>
-              <h2>What this piece is trying to rank for</h2>
+              <span className="alice-card-label">Summary</span>
+              <h2>{draft.city} · {draft.keyword}</h2>
             </div>
+            <span className="alice-status-pill alice-status-pill-review">{draft.status}</span>
           </div>
           <div className="alice-detail-grid">
             <div className="alice-detail-card">
@@ -58,19 +75,11 @@ export default async function DraftDetailPage({ params }: Props) {
             </div>
           </div>
 
-          <section className="alice-narrative-block">
-            <span className="alice-card-label">Editorial frame</span>
-            <h3>Review this draft against the PKB, the city angle, and the publish standard.</h3>
-            <p>
-              In the next iteration this area should hold the full article, source references, and comments. For now it establishes the single-decision review pattern: inspect context, choose status, save, move on.
-            </p>
-          </section>
-
           <section className="alice-bullet-grid">
-            <div className="alice-bullet-card">Check whether the article angle truly matches the keyword intent.</div>
-            <div className="alice-bullet-card">Verify every technical claim against the approved product record.</div>
-            <div className="alice-bullet-card">Make sure the city references sound local, not mass-generated.</div>
-            <div className="alice-bullet-card">Only move to Approved when nothing else needs interpretation.</div>
+            <div className="alice-bullet-card">Match the article to the search intent.</div>
+            <div className="alice-bullet-card">Check claims against approved product facts.</div>
+            <div className="alice-bullet-card">Keep local references specific and believable.</div>
+            <div className="alice-bullet-card">Approve only when nothing is ambiguous.</div>
           </section>
         </article>
 
@@ -95,6 +104,7 @@ export default async function DraftDetailPage({ params }: Props) {
                   <option>Published</option>
                 </select>
               </label>
+              <p className="alice-helper-copy">Save the next review state and return to the queue when this draft is ready.</p>
               <button className="button button-primary" type="submit">
                 Save status
               </button>
@@ -129,15 +139,13 @@ export default async function DraftDetailPage({ params }: Props) {
       <section className="alice-surface">
         <div className="alice-surface-head">
           <div>
-            <span className="alice-card-label">Flow status</span>
-            <h2>What this prototype now proves</h2>
+            <span className="alice-card-label">Next step</span>
+            <h2>Move it forward</h2>
           </div>
         </div>
         <div className="alice-inline-note">
-          <strong>Queue to detail to saved decision is working</strong>
-          <p>
-            Open the queue, pick a draft, review the context, choose the next status, and save it. That is the first workflow in ALICE that now behaves like a product instead of a static dashboard.
-          </p>
+          <strong>Save the next decision</strong>
+          <p>Use one status only. If the draft is still uncertain, send it back before publish.</p>
         </div>
         <div style={{ marginTop: 14 }}>
           <Link className="button button-secondary" href="/queue">

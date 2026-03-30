@@ -6,11 +6,11 @@ export const pipelineMetrics = [
 ];
 
 export const aliceNav = [
-  { href: "/", label: "Overview", caption: "Program dashboard" },
-  { href: "/ingestion", label: "Ingestion", caption: "Brochures and extraction runs" },
-  { href: "/pkb", label: "PKB", caption: "Product source of truth" },
-  { href: "/queue", label: "Queue", caption: "Draft review and QA" },
-  { href: "/keywords", label: "Keywords", caption: "City opportunity tracker" },
+  { href: "/", label: "Overview", caption: "Today and what needs action", icon: "home" },
+  { href: "/ingestion", label: "Documents", caption: "Source files and extraction runs", icon: "documents" },
+  { href: "/pkb", label: "Products", caption: "Approved product information", icon: "products" },
+  { href: "/queue", label: "Review Queue", caption: "Draft review and publishing status", icon: "queue" },
+  { href: "/keywords", label: "Opportunities", caption: "City and keyword priorities", icon: "opportunities" },
 ];
 
 export const aliceBrands = [

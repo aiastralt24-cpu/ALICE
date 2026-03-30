@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 
 import { db } from "@/lib/db";
 
@@ -57,6 +58,7 @@ export async function createIngestionRunAction(formData: FormData) {
 
   revalidatePath("/ingestion");
   revalidatePath("/");
+  redirect("/ingestion?notice=upload-saved");
 }
 
 export async function updateIngestionRunStatusAction(formData: FormData) {
@@ -74,6 +76,7 @@ export async function updateIngestionRunStatusAction(formData: FormData) {
 
   revalidatePath("/ingestion");
   revalidatePath("/");
+  redirect("/ingestion?notice=run-updated");
 }
 
 export async function createProductRecordAction(formData: FormData) {
@@ -106,6 +109,7 @@ export async function createProductRecordAction(formData: FormData) {
 
   revalidatePath("/pkb");
   revalidatePath("/");
+  redirect("/pkb?notice=record-saved");
 }
 
 export async function updateProductRecordStatusAction(formData: FormData) {
@@ -123,6 +127,7 @@ export async function updateProductRecordStatusAction(formData: FormData) {
 
   revalidatePath("/pkb");
   revalidatePath("/");
+  redirect("/pkb?notice=status-updated");
 }
 
 export async function updateBlogDraftStatusAction(formData: FormData) {
@@ -141,4 +146,5 @@ export async function updateBlogDraftStatusAction(formData: FormData) {
   revalidatePath("/queue");
   revalidatePath(`/queue/${id}`);
   revalidatePath("/");
+  redirect(`/queue/${id}?notice=status-saved`);
 }

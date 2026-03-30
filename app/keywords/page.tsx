@@ -11,20 +11,19 @@ export default async function KeywordsPage() {
     <main className="alice-screen-shell">
       <AlicePageIntro
         eyebrow="Keyword Tracker"
-        title="Prioritize city and product opportunities."
-        description="Use the tracker to see which combinations deserve fresh content, which ones need optimization, and where competitors are still ahead."
+        title="City and keyword priorities."
         actions={[
-          { href: "/", label: "Dashboard", style: "secondary" },
+          { href: "/", label: "Overview", style: "secondary" },
           { label: "Add keyword set" },
         ]}
       />
 
-      <section className="alice-dashboard-grid">
-        <article className="alice-surface">
+      <section className="alice-detail-layout">
+        <article className="alice-surface alice-surface-strong">
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Priority cities</span>
-              <h2>Next actions by market</h2>
+              <h2>Next actions</h2>
             </div>
           </div>
           <div className="alice-stack">
@@ -47,25 +46,30 @@ export default async function KeywordsPage() {
           </div>
         </article>
 
-        <article className="alice-surface">
-          <div className="alice-surface-head">
-            <div>
-              <span className="alice-card-label">Tracker note</span>
-              <h2>How to use this board</h2>
+        <aside className="alice-review-rail">
+          <div className="alice-review-rail-card">
+            <span className="alice-card-label">Use this board</span>
+            <div className="alice-inline-note">
+              <strong>Pick one move per city</strong>
+              <p>Use this list to trigger a draft or optimization, not passive reporting.</p>
             </div>
           </div>
-          <div className="alice-inline-note">
-            <strong>Pick one move per city</strong>
-            <p>ALICE works best when keyword decisions feed directly into draft generation or optimization, not passive reporting.</p>
+          <div className="alice-review-rail-card">
+            <span className="alice-card-label">What comes next</span>
+            <div className="alice-signal-list">
+              <div className="alice-signal-copy">Choose one city with the highest urgency.</div>
+              <div className="alice-signal-copy">Route missing content into the review queue.</div>
+              <div className="alice-signal-copy">Only track ranking gaps that can trigger work.</div>
+            </div>
           </div>
-        </article>
+        </aside>
       </section>
 
       <section className="alice-surface">
         <div className="alice-surface-head">
           <div>
             <span className="alice-card-label">Priority map</span>
-            <h2>Keyword and city watchlist</h2>
+            <h2>Watchlist</h2>
           </div>
         </div>
         <div className="alice-table">

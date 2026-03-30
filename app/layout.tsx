@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+
 import { AliceShell } from "@/components/alice-shell";
 import "./globals.css";
 
@@ -14,9 +15,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body>
-        <AliceShell>{children}</AliceShell>
-      </body>
+      <body><AliceShell>{children}</AliceShell></body>
     </html>
   );
 }

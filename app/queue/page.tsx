@@ -13,11 +13,11 @@ export default async function QueuePage() {
     <main className="alice-screen-shell">
       <AlicePageIntro
         eyebrow="Blog Queue"
-        title="Review what is ready, block what is risky."
-        description="The queue should behave like a worklist, not a report. One draft should clearly feel like the next decision."
+        title="Review the work."
+        variant="section"
         actions={[
           { href: `/queue/${priorityDraft.id}`, label: "Open priority draft" },
-          { href: "/", label: "Dashboard", style: "secondary" },
+          { href: "/", label: "Overview", style: "secondary" },
         ]}
       />
 
@@ -31,12 +31,17 @@ export default async function QueuePage() {
             <span className="alice-status-pill alice-status-pill-review">{priorityDraft.status}</span>
           </div>
           <p className="alice-focus-copy">
-            Resolve this first so the team always has one obvious next action. Everything else in the queue is secondary until this draft moves.
+            {priorityDraft.city} · {priorityDraft.keyword}
           </p>
           <div className="alice-focus-meta">
             <span>{priorityDraft.city}</span>
             <span>{priorityDraft.mode}</span>
             <span>Score {priorityDraft.score}</span>
+          </div>
+          <div className="alice-inline-actions">
+            <Link className="button button-primary" href={`/queue/${priorityDraft.id}`}>
+              Review draft
+            </Link>
           </div>
         </article>
 
@@ -59,12 +64,12 @@ export default async function QueuePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Drafts</span>
-              <h2>Active worklist</h2>
+              <h2>Active drafts</h2>
             </div>
           </div>
           <div className="alice-stack alice-stack-tight">
             {generationQueue.map((draft) => (
-              <div className="alice-work-card" key={draft.id}>
+              <div className="alice-work-card alice-work-card-review" key={draft.id}>
                 <div>
                   <Link className="alice-link-strong" href={`/queue/${draft.id}`}>
                     {draft.title}
@@ -90,12 +95,12 @@ export default async function QueuePage() {
                     <option>Approved</option>
                     <option>Published</option>
                   </select>
-                  <Link className="button button-secondary" href={`/queue/${draft.id}`}>
+                  <button className="button button-secondary" type="submit">
+                    Save
+                  </button>
+                  <Link className="button button-primary" href={`/queue/${draft.id}`}>
                     Review
                   </Link>
-                  <button className="button button-secondary" type="submit">
-                    Update
-                  </button>
                 </form>
               </div>
             ))}
@@ -106,7 +111,7 @@ export default async function QueuePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Alerts</span>
-              <h2>What needs human attention</h2>
+              <h2>Needs attention</h2>
             </div>
           </div>
           <div className="alice-stack">
@@ -125,7 +130,7 @@ export default async function QueuePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Publish gate</span>
-              <h2>Use the same standard every time</h2>
+              <h2>Checklist</h2>
             </div>
           </div>
           <div className="alice-bullet-grid">
@@ -141,7 +146,7 @@ export default async function QueuePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Generation modes</span>
-              <h2>When to use each mode</h2>
+              <h2>Mode guide</h2>
             </div>
           </div>
           <div className="alice-stack">
