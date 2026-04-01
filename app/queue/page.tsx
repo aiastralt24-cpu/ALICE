@@ -2,11 +2,11 @@ import Link from "next/link";
 
 import { updateBlogDraftStatusAction } from "@/app/actions";
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { getGenerationQueue, getStaticAliceGuidance } from "@/lib/alice-store";
+import { getQueueInsights, getStaticAliceGuidance } from "@/lib/alice-store";
 
 export default async function QueuePage() {
-  const generationQueue = await getGenerationQueue();
-  const { generationModes, reviewAlerts, reviewChecklist } = getStaticAliceGuidance();
+  const generationQueue = await getQueueInsights();
+  const { generationModes, reviewChecklist } = getStaticAliceGuidance();
   const priorityDraft = generationQueue[0];
 
   return (
@@ -47,9 +47,9 @@ export default async function QueuePage() {
 
         <aside className="alice-focus-rail">
           <div className="alice-rail-section">
-            <span className="alice-card-label">Review rules</span>
+            <span className="alice-card-label">What is blocking publish</span>
             <div className="alice-signal-list">
-              {reviewChecklist.slice(0, 4).map((item) => (
+              {[priorityDraft.blocker, ...reviewChecklist.slice(0, 2)].map((item) => (
                 <div className="alice-signal-copy" key={item}>
                   {item}
                 </div>
@@ -67,25 +67,29 @@ export default async function QueuePage() {
               <h2>Active drafts</h2>
             </div>
           </div>
-          <div className="alice-stack alice-stack-tight">
+          <div className="alice-decision-table">
+            <div className="alice-table-header alice-table-header-queue">
+              <span>Draft</span>
+              <span>City</span>
+              <span>Score</span>
+              <span>Status</span>
+              <span>Action</span>
+            </div>
             {generationQueue.map((draft) => (
-              <div className="alice-work-card alice-work-card-review" key={draft.id}>
+              <div className={`alice-table-row alice-table-row-queue alice-tone-${draft.blockerTone}`} key={draft.id}>
                 <div>
                   <Link className="alice-link-strong" href={`/queue/${draft.id}`}>
                     {draft.title}
                   </Link>
-                  <p>
-                    {draft.city} · {draft.keyword}
-                  </p>
+                  <p>{draft.keyword}</p>
                 </div>
                 <div>
-                  <div className="alice-work-facts">
-                    <span>{draft.mode}</span>
-                    <span>Score {draft.score}</span>
-                    <span>{draft.city}</span>
-                  </div>
+                  <strong>{draft.city}</strong>
                 </div>
-                <form action={updateBlogDraftStatusAction} className="alice-inline-form">
+                <div>
+                  <span className={`alice-status-pill alice-tone-${draft.scoreTone}`}>{draft.score}</span>
+                </div>
+                <form action={updateBlogDraftStatusAction} className="alice-inline-form alice-inline-form-compact" id={`queue-status-${draft.id}`}>
                   <input name="id" type="hidden" value={draft.id} />
                   <select className="alice-input alice-input-compact" defaultValue={draft.status} name="status">
                     <option>Ready for review</option>
@@ -95,13 +99,16 @@ export default async function QueuePage() {
                     <option>Approved</option>
                     <option>Published</option>
                   </select>
-                  <button className="button button-secondary" type="submit">
-                    Save
-                  </button>
+                  <span className={`alice-status-pill alice-tone-${draft.blockerTone}`}>{draft.status}</span>
+                </form>
+                <div className="alice-table-action">
                   <Link className="button button-primary" href={`/queue/${draft.id}`}>
                     Review
                   </Link>
-                </form>
+                  <button className="button button-secondary button-compact" form={`queue-status-${draft.id}`} type="submit">
+                    Save
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -110,15 +117,15 @@ export default async function QueuePage() {
         <article className="alice-surface alice-surface-muted">
           <div className="alice-surface-head">
             <div>
-              <span className="alice-card-label">Alerts</span>
-              <h2>Needs attention</h2>
+              <span className="alice-card-label">Blockers</span>
+              <h2>What is blocking publish</h2>
             </div>
           </div>
           <div className="alice-stack">
-            {reviewAlerts.map((alert) => (
-              <div className="alice-alert-card" key={alert.title}>
-                <strong>{alert.title}</strong>
-                <p>{alert.detail}</p>
+            {generationQueue.slice(0, 3).map((draft) => (
+              <div className={`alice-alert-card alice-tone-${draft.blockerTone}`} key={draft.id}>
+                <strong>{draft.city}</strong>
+                <p>{draft.blocker}</p>
               </div>
             ))}
           </div>
@@ -146,11 +153,11 @@ export default async function QueuePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Generation modes</span>
-              <h2>Mode guide</h2>
+              <h2>Why this is next</h2>
             </div>
           </div>
           <div className="alice-stack">
-            {generationModes.map((mode) => (
+            {generationModes.slice(0, 3).map((mode) => (
               <div className="alice-chip-card" key={mode.name}>
                 <div>
                   <strong>{mode.name}</strong>

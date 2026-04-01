@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { createIngestionRunAction, updateIngestionRunStatusAction } from "@/app/actions";
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { getBrandProfiles, getIngestionRuns, getPipelineMetrics, getStaticAliceGuidance } from "@/lib/alice-store";
+import { getBrandProfiles, getIngestionInsights, getPipelineMetrics, getStaticAliceGuidance } from "@/lib/alice-store";
 
 type Props = {
   searchParams?: Promise<{
@@ -30,7 +30,7 @@ export default async function IngestionPage({ searchParams }: Props) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
   const [brands, ingestionRuns, pipelineMetrics] = await Promise.all([
     getBrandProfiles(),
-    getIngestionRuns(),
+    getIngestionInsights(),
     getPipelineMetrics(),
   ]);
   const { extractionChecks } = getStaticAliceGuidance();
@@ -39,7 +39,7 @@ export default async function IngestionPage({ searchParams }: Props) {
   return (
     <main className="alice-screen-shell">
       <AlicePageIntro
-        eyebrow="Brochure Ingestion"
+        eyebrow="Source Intake"
         title="Capture product knowledge from source documents."
         actions={[
           { href: "/", label: "Overview", style: "secondary" },
@@ -116,9 +116,9 @@ export default async function IngestionPage({ searchParams }: Props) {
 
         <aside className="alice-review-rail">
           <div className="alice-review-rail-card">
-            <span className="alice-card-label">Checklist</span>
+            <span className="alice-card-label">What is missing before approval</span>
             <div className="alice-signal-list">
-              {extractionChecks.slice(0, 3).map((item) => (
+              {[ingestionRuns[0]?.blockerReason, ...extractionChecks.slice(0, 2)].map((item) => (
                 <div className="alice-signal-copy" key={item}>
                   {item}
                 </div>
@@ -139,43 +139,58 @@ export default async function IngestionPage({ searchParams }: Props) {
       </section>
 
       <section className="alice-surface">
-          <div className="alice-surface-head">
-            <div>
-              <span className="alice-card-label">Runs</span>
-              <h2>Recent runs</h2>
-            </div>
+        <div className="alice-surface-head">
+          <div>
+            <span className="alice-card-label">Runs</span>
+            <h2>Recent runs</h2>
           </div>
-          <div className="alice-stack">
-            {ingestionRuns.map((run) => (
-              <div className="alice-row-card alice-row-card-actions" key={run.id}>
-                <div>
-                  <strong>{run.fileName}</strong>
-                  <p>
-                    {run.brand} · {run.uploadedAt}
-                  </p>
-                </div>
-                <div>
-                  <span>Status</span>
-                  <strong>{run.status}</strong>
-                </div>
-                <div>
-                  <span>Review</span>
-                  <strong>{run.reviewer}</strong>
-                </div>
-                <form action={updateIngestionRunStatusAction} className="alice-inline-form">
-                  <input name="id" type="hidden" value={run.id} />
-                  <select className="alice-input alice-input-compact" defaultValue={run.status} name="status">
-                    <option>Parsing</option>
-                    <option>Needs review</option>
-                    <option>Approved</option>
-                  </select>
-                  <button className="button button-secondary" type="submit">
-                    Update
-                  </button>
-                </form>
+        </div>
+        <div className="alice-decision-table">
+          <div className="alice-table-header alice-table-header-sources">
+            <span>Source</span>
+            <span>Confidence</span>
+            <span>Missing fields</span>
+            <span>Flagged claims</span>
+            <span>Status</span>
+            <span>Action</span>
+          </div>
+          {ingestionRuns.map((run) => (
+            <div className={`alice-table-row alice-table-row-sources alice-tone-${run.confidenceTone}`} key={run.id}>
+              <div>
+                <strong>{run.fileName}</strong>
+                <p>
+                  {run.brand} · {run.uploadedAt}
+                </p>
               </div>
-            ))}
-          </div>
+              <div>
+                <span className={`alice-status-pill alice-tone-${run.confidenceTone}`}>{run.confidence}</span>
+              </div>
+              <div>
+                <strong>{run.missingFields}</strong>
+                <p>fields still missing</p>
+              </div>
+              <div>
+                <strong>{run.flaggedClaims}</strong>
+                <p>claims flagged</p>
+              </div>
+              <form action={updateIngestionRunStatusAction} className="alice-inline-form alice-inline-form-compact" id={`source-status-${run.id}`}>
+                <input name="id" type="hidden" value={run.id} />
+                <select className="alice-input alice-input-compact" defaultValue={run.status} name="status">
+                  <option>Parsing</option>
+                  <option>Needs review</option>
+                  <option>Approved</option>
+                </select>
+                <span className={`alice-status-pill alice-tone-${run.approvalBlocked ? "bad" : "good"}`}>{run.status}</span>
+              </form>
+              <div className="alice-table-action">
+                <p>{run.blockerReason}</p>
+                <button className="button button-secondary button-compact" form={`source-status-${run.id}`} type="submit">
+                  Update
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
       </section>
     </main>
   );

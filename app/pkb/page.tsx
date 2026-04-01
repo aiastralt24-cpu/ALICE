@@ -2,7 +2,7 @@ import Link from "next/link";
 
 import { createProductRecordAction, updateProductRecordStatusAction } from "@/app/actions";
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { getBrandProfiles, getProductRecords, getStaticAliceGuidance } from "@/lib/alice-store";
+import { getBrandProfiles, getProductInsights, getStaticAliceGuidance } from "@/lib/alice-store";
 
 type Props = {
   searchParams?: Promise<{
@@ -28,9 +28,11 @@ function getNoticeMessage(notice?: string) {
 
 export default async function PkbPage({ searchParams }: Props) {
   const resolvedSearchParams = searchParams ? await searchParams : undefined;
-  const [brands, productRecords] = await Promise.all([getBrandProfiles(), getProductRecords()]);
+  const [brands, productRecords] = await Promise.all([getBrandProfiles(), getProductInsights()]);
   const { pkbFields } = getStaticAliceGuidance();
   const notice = getNoticeMessage(resolvedSearchParams?.notice);
+  const blockingRecords = productRecords.filter((product) => product.blockingReason);
+  const incompleteRecords = productRecords.filter((product) => product.missingFields.length > 0);
 
   return (
     <main className="alice-screen-shell">
@@ -101,9 +103,9 @@ export default async function PkbPage({ searchParams }: Props) {
 
         <aside className="alice-review-rail">
           <div className="alice-review-rail-card">
-            <span className="alice-card-label">Required fields</span>
+            <span className="alice-card-label">What is missing before approval</span>
             <div className="alice-signal-list">
-              {pkbFields.map((field) => (
+              {(incompleteRecords[0]?.missingFields.length ? incompleteRecords[0].missingFields : pkbFields.slice(0, 3)).map((field) => (
                 <div className="alice-signal-copy" key={field}>
                   {field}
                 </div>
@@ -111,15 +113,15 @@ export default async function PkbPage({ searchParams }: Props) {
             </div>
           </div>
           <div className="alice-review-rail-card">
-            <span className="alice-card-label">Coverage</span>
+            <span className="alice-card-label">Why this matters</span>
             <div className="alice-stack alice-stack-tight">
-              <div className="alice-alert-card">
-                <strong>4 product families mapped</strong>
-                <p>Enough to support first drafting flows.</p>
+              <div className={`alice-alert-card ${blockingRecords.length ? "alice-tone-bad" : "alice-tone-good"}`}>
+                <strong>{blockingRecords.length} records blocking drafts</strong>
+                <p>{blockingRecords.length ? "Draft generation is waiting on approval." : "No blocking records in the PKB."}</p>
               </div>
-              <div className="alice-alert-card">
-                <strong>1 product line pending review</strong>
-                <p>Keep industrial drafts blocked until specs are approved.</p>
+              <div className={`alice-alert-card ${incompleteRecords.length ? "alice-tone-warn" : "alice-tone-good"}`}>
+                <strong>{incompleteRecords.length} records missing fields</strong>
+                <p>{incompleteRecords.length ? "Complete missing fields before widening generation." : "Core PKB fields are present."}</p>
               </div>
             </div>
           </div>
@@ -133,9 +135,17 @@ export default async function PkbPage({ searchParams }: Props) {
             <h2>Records</h2>
           </div>
         </div>
-        <div className="alice-table">
+        <div className="alice-decision-table">
+          <div className="alice-table-header alice-table-header-products">
+            <span>Product</span>
+            <span>Status</span>
+            <span>Completeness</span>
+            <span>Used in drafts</span>
+            <span>Missing fields</span>
+            <span>Action</span>
+          </div>
           {productRecords.map((product) => (
-            <div className="alice-table-row alice-table-row-wide alice-table-row-with-actions" key={product.id}>
+            <div className={`alice-table-row alice-table-row-products alice-tone-${product.completenessTone}`} key={product.id}>
               <div>
                 <strong>{product.name}</strong>
                 <p>
@@ -143,16 +153,17 @@ export default async function PkbPage({ searchParams }: Props) {
                 </p>
               </div>
               <div>
-                <span>USP</span>
-                <strong>{product.usp}</strong>
+                <span className={`alice-status-pill alice-tone-${product.statusTone}`}>{product.status}</span>
               </div>
               <div>
-                <span>Specs</span>
-                <strong>{product.spec}</strong>
+                <strong>{product.completeness}%</strong>
               </div>
               <div>
-                <span>Status</span>
-                <strong>{product.status}</strong>
+                <strong>{product.usageCount}</strong>
+              </div>
+              <div>
+                <strong>{product.missingFields.length ? product.missingFields.join(", ") : "Complete"}</strong>
+                <p>{product.blockingReason ?? product.usp}</p>
               </div>
               <form action={updateProductRecordStatusAction} className="alice-inline-form">
                 <input name="id" type="hidden" value={product.id} />
@@ -161,7 +172,7 @@ export default async function PkbPage({ searchParams }: Props) {
                   <option>Approved</option>
                 </select>
                 <button className="button button-secondary" type="submit">
-                  Update
+                  Save
                 </button>
               </form>
             </div>

@@ -7,10 +7,10 @@ export const pipelineMetrics = [
 
 export const aliceNav = [
   { href: "/", label: "Overview", caption: "Today and what needs action", icon: "home" },
-  { href: "/ingestion", label: "Documents", caption: "Source files and extraction runs", icon: "documents" },
+  { href: "/ingestion", label: "Sources", caption: "Source files and extraction runs", icon: "documents" },
   { href: "/pkb", label: "Products", caption: "Approved product information", icon: "products" },
   { href: "/queue", label: "Review Queue", caption: "Draft review and publishing status", icon: "queue" },
-  { href: "/keywords", label: "Opportunities", caption: "City and keyword priorities", icon: "opportunities" },
+  { href: "/keywords", label: "Actions", caption: "City and keyword priorities", icon: "opportunities" },
 ];
 
 export const aliceBrands = [
@@ -192,3 +192,15 @@ export const keywordPriorities = [
   { city: "Mumbai", focus: "Plumbing pipes", nextMove: "Add dealer CTA and local schema", urgency: "Medium" },
   { city: "Rajkot", focus: "Industrial piping", nextMove: "Generate first draft", urgency: "Medium" },
 ];
+
+export function getUrgencyTone(urgency: string) {
+  if (urgency.toLowerCase() === "high") {
+    return "high";
+  }
+
+  if (urgency.toLowerCase() === "medium") {
+    return "medium";
+  }
+
+  return "low";
+}

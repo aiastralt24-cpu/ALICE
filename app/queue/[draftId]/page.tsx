@@ -129,7 +129,11 @@ export default async function DraftDetailPage({ params, searchParams }: Props) {
           <div className="alice-review-rail-card">
             <span className="alice-card-label">Current watch-outs</span>
             <div className="alice-stack alice-stack-tight">
-              {reviewAlerts.map((alert) => (
+              <div className="alice-alert-card alice-tone-warn">
+                <strong>Why this is next</strong>
+                <p>Review queue is prioritizing this draft because its publish blockers are still unresolved.</p>
+              </div>
+              {reviewAlerts.slice(0, 2).map((alert) => (
                 <div className="alice-alert-card" key={alert.title}>
                   <strong>{alert.title}</strong>
                   <p>{alert.detail}</p>

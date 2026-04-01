@@ -366,6 +366,12 @@ button {
   transition: transform 160ms ease, background 160ms ease, border-color 160ms ease, color 160ms ease, box-shadow 160ms ease;
 }
 
+.button-compact {
+  min-height: 36px;
+  padding: 0 12px;
+  font-size: 0.86rem;
+}
+
 .button-primary {
   background: #111827;
   color: #ffffff;
@@ -393,6 +399,38 @@ button {
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
   margin-bottom: 18px;
+}
+
+.alice-decision-table {
+  display: grid;
+  gap: 10px;
+}
+
+.alice-table-header {
+  display: grid;
+  gap: 12px;
+  padding: 0 12px 6px;
+  color: var(--text-faint);
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.alice-table-header-actions {
+  grid-template-columns: 1.1fr 1.2fr 0.8fr 0.7fr 1.2fr 1.2fr 0.7fr;
+}
+
+.alice-table-header-products {
+  grid-template-columns: 1.3fr 0.8fr 0.7fr 0.8fr 1.2fr auto;
+}
+
+.alice-table-header-queue {
+  grid-template-columns: 1.4fr 0.7fr 0.6fr 1fr auto;
+}
+
+.alice-table-header-sources {
+  grid-template-columns: 1.3fr 0.7fr 0.8fr 0.8fr 1fr auto;
 }
 
 .alice-kpi-tile,
@@ -676,6 +714,24 @@ button {
   grid-template-columns: repeat(4, minmax(0, 1fr));
 }
 
+.alice-table-row-actions {
+  grid-template-columns: 1.1fr 1.2fr 0.8fr 0.7fr 1.2fr 1.2fr 0.7fr;
+}
+
+.alice-table-row-products {
+  grid-template-columns: 1.3fr 0.8fr 0.7fr 0.8fr 1.2fr auto;
+}
+
+.alice-table-row-queue {
+  grid-template-columns: 1.4fr 0.7fr 0.6fr 1fr auto;
+  align-items: center;
+}
+
+.alice-table-row-sources {
+  grid-template-columns: 1.3fr 0.7fr 0.8fr 0.8fr 1fr auto;
+  align-items: center;
+}
+
 .alice-table-row-with-actions,
 .alice-row-card-actions {
   grid-template-columns: minmax(0, 1.1fr) repeat(3, minmax(0, 0.8fr)) auto;
@@ -724,6 +780,16 @@ button {
   align-items: center;
 }
 
+.alice-inline-form-compact {
+  grid-auto-flow: row;
+  grid-auto-columns: unset;
+  align-items: stretch;
+}
+
+.alice-inline-form-compact .alice-status-pill {
+  justify-self: start;
+}
+
 .alice-form-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -769,6 +835,19 @@ button {
   gap: 16px;
 }
 
+.alice-table-action {
+  display: grid;
+  justify-items: start;
+  gap: 8px;
+}
+
+.alice-table-action p {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.84rem;
+  line-height: 1.45;
+}
+
 .alice-focus-copy-compact {
   margin-bottom: 12px;
 }
@@ -784,6 +863,21 @@ button {
 .alice-detail-card span,
 .alice-field span {
   font-size: 0.82rem;
+}
+
+.alice-tone-good {
+  border-color: rgba(16, 185, 129, 0.22);
+  background: linear-gradient(180deg, #ffffff, rgba(16, 185, 129, 0.04));
+}
+
+.alice-tone-warn {
+  border-color: rgba(245, 158, 11, 0.22);
+  background: linear-gradient(180deg, #ffffff, rgba(245, 158, 11, 0.05));
+}
+
+.alice-tone-bad {
+  border-color: rgba(239, 68, 68, 0.22);
+  background: linear-gradient(180deg, #ffffff, rgba(239, 68, 68, 0.05));
 }
 
 @media (max-width: 1100px) {
@@ -805,9 +899,18 @@ button {
   .alice-work-card-review,
   .alice-row-card,
   .alice-table-row,
+  .alice-table-row-actions,
+  .alice-table-row-products,
+  .alice-table-row-queue,
+  .alice-table-row-sources,
   .alice-table-row-with-actions,
   .alice-row-card-actions,
-  .alice-detail-grid {
+  .alice-detail-grid,
+  .alice-table-header,
+  .alice-table-header-actions,
+  .alice-table-header-products,
+  .alice-table-header-queue,
+  .alice-table-header-sources {
     grid-template-columns: 1fr;
   }
 }

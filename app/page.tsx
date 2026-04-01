@@ -1,13 +1,12 @@
 import Link from "next/link";
 
 import { AlicePageIntro } from "@/components/alice-page-intro";
-import { reviewAlerts } from "@/lib/alice-data";
-import { getGenerationQueue, getIngestionRuns, getStaticAliceGuidance } from "@/lib/alice-store";
+import { getIngestionInsights, getQueueInsights, getStaticAliceGuidance } from "@/lib/alice-store";
 
 export default async function AliceHomePage() {
   const [generationQueue, ingestionRuns] = await Promise.all([
-    getGenerationQueue(),
-    getIngestionRuns(),
+    getQueueInsights(),
+    getIngestionInsights(),
   ]);
   const { reviewChecklist } = getStaticAliceGuidance();
 
@@ -42,7 +41,7 @@ export default async function AliceHomePage() {
           <div className="alice-focus-meta">
             <span>{nextDraft.mode}</span>
             <span>Score {nextDraft.score}</span>
-            <span>Astral Pipes</span>
+            <span>{nextDraft.blocker}</span>
           </div>
           <div className="alice-inline-actions">
             <Link className="button button-primary" href={`/queue/${nextDraft.id}`}>
@@ -73,13 +72,13 @@ export default async function AliceHomePage() {
               {nextIngestion.brand} · {nextIngestion.status}
             </p>
             <Link className="alice-inline-link" href="/ingestion">
-              Open documents
+              Open sources
             </Link>
           </div>
           <div className="alice-review-rail-card">
-            <span className="alice-card-label">Checklist</span>
+            <span className="alice-card-label">Why this is next</span>
             <div className="alice-signal-list">
-              {reviewChecklist.slice(0, 3).map((item) => (
+              {[nextDraft.blocker, ...reviewChecklist.slice(0, 2)].map((item) => (
                 <div className="alice-signal-copy" key={item}>
                   {item}
                 </div>
@@ -105,9 +104,9 @@ export default async function AliceHomePage() {
                   <strong>{draft.title}</strong>
                   <p>{draft.city} · {draft.keyword}</p>
                 </div>
+                <span className={`alice-work-meta alice-tone-${draft.scoreTone}`}>Score {draft.score}</span>
                 <span className="alice-work-meta">{draft.mode}</span>
-                <span className="alice-work-meta">Score {draft.score}</span>
-                <span className={`alice-status-pill ${draft.id === nextDraft.id ? "alice-status-pill-review" : "alice-status-pill-neutral"}`}>
+                <span className={`alice-status-pill ${draft.id === nextDraft.id ? "alice-status-pill-review" : "alice-status-pill-neutral"} alice-tone-${draft.blockerTone}`}>
                   {draft.status}
                 </span>
               </Link>
@@ -118,14 +117,14 @@ export default async function AliceHomePage() {
           <div className="alice-surface-head">
             <div>
               <span className="alice-card-label">Needs attention</span>
-              <h2>Watchouts</h2>
+              <h2>Blockers</h2>
             </div>
           </div>
           <div className="alice-stack">
-            {reviewAlerts.slice(0, 2).map((alert) => (
-              <div className="alice-alert-card" key={alert.title}>
-                <strong>{alert.title}</strong>
-                <p>{alert.detail}</p>
+            {generationQueue.slice(0, 3).map((draft) => (
+              <div className={`alice-alert-card alice-tone-${draft.blockerTone}`} key={draft.id}>
+                <strong>{draft.city}</strong>
+                <p>{draft.blocker}</p>
               </div>
             ))}
           </div>
